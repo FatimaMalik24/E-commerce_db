@@ -18,5 +18,4 @@ const auth = async (req, res, next) => {
     res.status(401).json({ error: "Unauthorized: " + err.message });
   }
 };
-
 module.exports = auth;
