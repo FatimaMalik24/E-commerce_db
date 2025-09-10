@@ -2,7 +2,7 @@ const express = require("express");
 const router = express.Router();
 const Category = require("../models/Category.js");
 const auth = require("../middleware/auth.js");
-const AppError = require("./utils/errors.js");
+const AppError = require("../utils/errors.js");
 const authorize = require("../middleware/authorize.js");
 router.post("/", auth, authorize("brand_admin"), async (req, res) => {
   try {
