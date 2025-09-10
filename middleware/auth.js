@@ -1,5 +1,6 @@
 const verifyToken = require("../utils/generateToken.js");
 const User = require("../models/User.js");
+const AppError = require("./utils/errors");
 const auth = async (req, res, next) => {
   try {
     const authHeader = req.headers.authorization;
@@ -18,4 +19,16 @@ const auth = async (req, res, next) => {
     res.status(401).json({ error: "Unauthorized: " + err.message });
   }
 };
+app.use((req, res, next) => {
+  next(new AppError(`Route ${req.originalUrl} not found`, 404, "NOT_FOUND"));
+});
+app.use((err, req, res, next) => {
+  console.error("Error:", err.message); 
+
+  res.status(err.statusCode || 500).json({
+    success: false,
+    message: err.message || "Internal Server Error",
+    code: err.code || "INTERNAL_ERROR",
+  });
+});
 module.exports = auth;
