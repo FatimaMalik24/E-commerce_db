@@ -1,4 +1,4 @@
-const verifyToken = require("../utils/generateToken.js");
+const { verifyToken } = require("../utils/generateToken");
 const User = require("../models/User.js");
 const AppError = require("../utils/errors.js"); // ✅ corrected path
 
