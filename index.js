@@ -6,19 +6,40 @@ const connectDB = require("./config/database.js");
 const brandRoutes = require("./routes/brands.js");
 const categoryRoutes = require("./routes/categories.js");
 const productRoutes = require("./routes/products.js");
+const AppError = require("./utils/errors.js"); 
+
 dotenv.config();
 connectDB();
+
 const app = express();
-app.use(morgan("dev")); 
-app.use(cors());   
-app.use(express.json()); 
+
+app.use(morgan("dev"));
+app.use(cors());
+app.use(express.json());
+
 app.use("/api/brands", brandRoutes);
 app.use("/api/categories", categoryRoutes);
 app.use("/api/products", productRoutes);
+
 app.get("/", (req, res) => {
   res.json({ message: "Server is running successfully" });
 });
-const PORT = process.env.PORT;
+
+app.use((req, res, next) => {
+  next(new AppError(`Route ${req.originalUrl} not found`, 404, "NOT_FOUND"));
+});
+
+app.use((err, req, res, next) => {
+  console.error("Error:", err.message);
+
+  res.status(err.statusCode || 500).json({
+    success: false,
+    message: err.message || "Internal Server Error",
+    code: err.code || "INTERNAL_ERROR",
+  });
+});
+
+const PORT = process.env.PORT ;
 app.listen(PORT, () => {
   console.log(`Server running on http://localhost:${PORT}`);
 });
