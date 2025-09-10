@@ -1,6 +1,6 @@
 const verifyToken = require("../utils/generateToken.js");
 const User = require("../models/User.js");
-const AppError = require("./utils/errors.js");
+const AppError = require("../utils/errors.js");
 const auth = async (req, res, next) => {
   try {
     const authHeader = req.headers.authorization;
