@@ -3,6 +3,8 @@ const router = express.Router();
 const Brand = require("../models/Brand.js");
 const auth = require("../middleware/auth.js");
 const authorize = require("../middleware/authorize.js");
+
+// Create Brand
 router.post("/", auth, authorize("super_admin"), async (req, res) => {
   try {
     const { name, description, logoUrl } = req.body;
@@ -14,6 +16,8 @@ router.post("/", auth, authorize("super_admin"), async (req, res) => {
     res.status(400).json({ message: err.message });
   }
 });
+
+// Get All Brands
 router.get("/", auth, authorize("super_admin"), async (req, res) => {
   try {
     const brands = await Brand.find();
@@ -22,6 +26,8 @@ router.get("/", auth, authorize("super_admin"), async (req, res) => {
     res.status(500).json({ message: err.message });
   }
 });
+
+// Get Brand by ID
 router.get("/:id", auth, authorize("super_admin"), async (req, res) => {
   try {
     const brand = await Brand.findById(req.params.id);
@@ -32,6 +38,8 @@ router.get("/:id", auth, authorize("super_admin"), async (req, res) => {
     res.status(500).json({ message: err.message });
   }
 });
+
+// Update Brand
 router.put("/:id", auth, authorize("super_admin"), async (req, res) => {
   try {
     const { name, description, logoUrl, isActive } = req.body;
@@ -42,15 +50,19 @@ router.put("/:id", auth, authorize("super_admin"), async (req, res) => {
       { new: true, runValidators: true }
     );
     if (!brand) return res.status(404).json({ message: "Brand not found" });
+
     res.json(brand);
   } catch (err) {
     res.status(400).json({ message: err.message });
   }
 });
+
+// Delete (Deactivate) Brand
 router.delete("/:id", auth, authorize("super_admin"), async (req, res) => {
   try {
     const brand = await Brand.findById(req.params.id);
     if (!brand) return res.status(404).json({ message: "Brand not found" });
+
     brand.isActive = false;
     await brand.save();
     res.json({ message: "Brand deactivated successfully" });
@@ -58,4 +70,5 @@ router.delete("/:id", auth, authorize("super_admin"), async (req, res) => {
     res.status(500).json({ message: err.message });
   }
 });
+
 module.exports = router;
