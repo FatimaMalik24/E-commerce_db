@@ -1,5 +1,6 @@
-const express = require("express");
 const dotenv = require("dotenv");
+dotenv.config();
+const express = require("express");
 const morgan = require("morgan");
 const cors = require("cors");
 const connectDB = require("./config/database.js");
@@ -7,10 +8,7 @@ const authRoutes = require("./routes/auth.js");
 const brandRoutes = require("./routes/brands.js");
 const categoryRoutes = require("./routes/categories.js");
 const productRoutes = require("./routes/products.js");
-
 const AppError = require("./utils/errors.js");
-
-dotenv.config();
 connectDB();
 
 const app = express();
