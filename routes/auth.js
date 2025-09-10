@@ -1,12 +1,14 @@
 const express = require("express");
-const body  = require("express-validator.js");
+const { body } = require("express-validator");
 const User = require("../models/User.js");
 const auth = require("../middleware/auth.js");
-const AppError = require("../utils/errors.js");
 const authorize = require("../middleware/authorize.js");
 const generateToken = require("../utils/generateToken.js");
 const validate = require("../middleware/validate.js"); 
+
 const router = express.Router();
+
+// Register user
 router.post(
   "/register",
   auth,
@@ -14,12 +16,8 @@ router.post(
   [
     body("name").notEmpty().withMessage("Name is required"),
     body("email").isEmail().withMessage("Valid email is required"),
-    body("password")
-      .isLength({ min: 6 })
-      .withMessage("Password must be at least 6 characters"),
-    body("role")
-      .isIn(["super_admin", "brand_admin"])
-      .withMessage("Role must be either super_admin or brand_admin"),
+    body("password").isLength({ min: 6 }).withMessage("Password must be at least 6 characters"),
+    body("role").isIn(["super_admin", "brand_admin"]).withMessage("Role must be super_admin or brand_admin"),
     body("brand").custom((value, { req }) => {
       if (req.body.role === "brand_admin" && !value) {
         throw new Error("Brand ID is required for brand_admin");
@@ -27,8 +25,8 @@ router.post(
       return true;
     }),
   ],
-  validate, // checks for validation errors
-  async (req, res) => {
+  validate,
+  async (req, res, next) => {
     try {
       const { name, email, password, role, brand } = req.body;
 
@@ -51,10 +49,12 @@ router.post(
         },
       });
     } catch (err) {
-      res.status(400).json({ error: err.message });
+      next(err); // pass to global error handler
     }
   }
 );
+
+// Login
 router.post(
   "/login",
   [
@@ -62,7 +62,7 @@ router.post(
     body("password").notEmpty().withMessage("Password is required"),
   ],
   validate,
-  async (req, res) => {
+  async (req, res, next) => {
     try {
       const { email, password } = req.body;
 
@@ -86,21 +86,9 @@ router.post(
         },
       });
     } catch (err) {
-      res.status(500).json({ error: err.message });
+      next(err);
     }
   }
 );
-app.use((req, res, next) => {
-  next(new AppError(`Route ${req.originalUrl} not found`, 404, "NOT_FOUND"));
-});
-app.use((err, req, res, next) => {
-  console.error("Error:", err.message); 
-
-  res.status(err.statusCode || 500).json({
-    success: false,
-    message: err.message || "Internal Server Error",
-    code: err.code || "INTERNAL_ERROR",
-  });
-});
 
 module.exports = router;
